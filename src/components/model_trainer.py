@@ -56,14 +56,53 @@ class ModelTrainer:
 
 
             }
-                
-            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,models=models)
+    
+            params = {
+
+            "Random Forest": {
+            "n_estimators": [100, 200],
+            "max_depth": [None, 20]
+            },
+
+            "Decision Tree": {
+            "max_depth": [None, 20, 30],
+            "min_samples_split": [2, 5]
+            },
+
+            "Gradient Boosting": {
+            "n_estimators": [100, 200],
+            "learning_rate": [0.05, 0.1]
+            },
+
+            "Linear Regression": {
+            "fit_intercept": [True, False]
+            },
+
+            "K-Neighbours Classifier": {
+            "n_neighbors": [3, 5, 7],
+            "weights": ["uniform", "distance"]
+            },
+
+            "Catboosting Classifier": {
+            "iterations": [100, 200],
+            "learning_rate": [0.05, 0.1],
+            "depth": [6, 8]
+            },
+
+            "Adaboost Classifier": {
+            "n_estimators": [50, 100],
+            "learning_rate": [0.1, 1]
+            }
+            }
+
+
+            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,models=models,params=params)
 
 
             ## To get best model score from dict
             best_model_score=max(sorted(model_report.values()))
         
-            ## To get best model name from dict
+            # To get best model name from dict
             best_model_name=list(model_report.keys())[
                 list(model_report.values()).index(best_model_score)
             ]
@@ -73,7 +112,7 @@ class ModelTrainer:
 
             if best_model_score<0.6:
                 raise CustomException("No best model found")
-            logging.info(f"Best model found on both training and testing dataset")
+            logging.info(f"Best model found on both training and testing dataset :{best_model}")
 
             save_object(
             file_path=self.model_trainer_config.trained_model_file_path,

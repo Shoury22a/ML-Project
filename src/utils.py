@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import sys
 import dill
+from sklearn.model_selection import GridSearchCV
 
 from sklearn.metrics import r2_score
 from src.logger import logging
@@ -21,36 +22,44 @@ def save_object(file_path,obj):
         raise CustomException(e,sys)
     
 
-def evaluate_models(X_train, y_train, X_test, y_test, models):
-    """
-    This function evaluates multiple regression models and returns a report
-    containing R2 score and Adjusted R2 score for each model.
-    """
-
+def evaluate_models(X_train, y_train, X_test, y_test, models, params, cv=3, n_jobs=3, verbose=0):
     try:
         report = {}
 
-        for model_name, model in models.items():
-            logging.info(f"Training model: {model_name}")
+        for i in range(len(models)):
 
-            # Train the model
+            model = list(models.values())[i]
+            para = params[list(models.keys())[i]]
+
+            gs = GridSearchCV(model, para, cv=cv, n_jobs=n_jobs, verbose=verbose, refit=True)
+            gs.fit(X_train, y_train)
+
+            model.set_params(**gs.best_params_)
             model.fit(X_train, y_train)
-
-            # Predictions
+            logging.info(f"Fitting done on hyperparametrized model :{model}")
             y_train_pred = model.predict(X_train)
             y_test_pred = model.predict(X_test)
 
-            # R2 scores
-            train_r2 = r2_score(y_train, y_train_pred)
-            test_r2 = r2_score(y_test, y_test_pred)
+            train_model_score = r2_score(y_train, y_train_pred)
+            test_model_score = r2_score(y_test, y_test_pred)
 
-            report[model_name]=test_r2
-
-            logging.info(
-                f"{model_name} -> Train R2: {train_r2}, Test R2: {test_r2}"
-            )
+            report[list(models.keys())[i]] = test_model_score
 
         return report
 
     except Exception as e:
-        raise CustomException(e, sys)
+        raise e
+
+
+
+def load_object(file_path):
+    """
+    This function loads a serialized Python object (like a trained ML model)
+    from the given file path.
+    """
+    try:
+        with open(file_path, "rb") as file_obj:
+            return dill.load(file_obj)
+
+    except Exception as e:
+        raise CustomException(e, sys)     
