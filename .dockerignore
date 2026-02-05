@@ -1,0 +1,68 @@
+# ============================================================
+# 🚫 .dockerignore - Files Docker Should IGNORE
+# ============================================================
+# 
+# WHAT IS THIS FILE?
+# -------------------
+# When Docker copies your project (COPY . .), it would copy
+# EVERYTHING. But we don't want to copy unnecessary files like:
+#   - Virtual environment (venv) - huge and not needed
+#   - Git files - not needed in production
+#   - Jupyter notebooks - only for development
+#   - Cache files - just clutter
+#
+# This file tells Docker: "Skip these files/folders"
+# Result: Smaller image, faster build!
+# ============================================================
+
+# ----- PYTHON VIRTUAL ENVIRONMENT -----
+# Your local venv can be 500MB+! Docker installs fresh libraries anyway
+venv/
+env/
+.venv/
+
+# ----- PYTHON CACHE FILES -----
+# These are auto-generated, not needed
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ----- GIT FILES -----
+# Version control files, not needed in container
+.git/
+.gitignore
+
+# ----- JUPYTER NOTEBOOKS -----
+# Development notebooks, not needed for running the app
+Notebook/
+Nbook/
+*.ipynb
+.ipynb_checkpoints/
+
+# ----- IDE AND EDITOR FILES -----
+# VS Code and other editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ----- LOG FILES -----
+# Old log files
+logs/
+*.log
+
+# ----- BUILD ARTIFACTS -----
+# Python package build files
+*.egg-info/
+mlproject.egg-info/
+dist/
+build/
+
+# ----- OTHER -----
+# Documentation and readme (not needed to run app)
+README.md
+
+# CatBoost training info (only needed during training)
+catboost_info/
